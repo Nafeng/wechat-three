@@ -363,14 +363,14 @@
 	  }, {
 	    key: 'clientWidth',
 	    get: function get() {
-	      var ret = parseInt(this.style.fontSize, 10) * this.innerHTML.length
+	      var ret = window.innerWidth
 
 	      return Number.isNaN(ret) ? 0 : ret
 	    }
 	  }, {
 	    key: 'clientHeight',
 	    get: function get() {
-	      var ret = parseInt(this.style.fontSize, 10)
+	      var ret = window.innerHeight
 
 	      return Number.isNaN(ret) ? 0 : ret
 	    }
