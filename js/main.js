@@ -1,6 +1,6 @@
-import "./three-adapter.js"
-import * as THREE from "three.js"
+import "./three/three-adapter.js"
 import GameObjects from "game-objects"
+import UiObjects from "ui-objects"
 
 
 export default class Main {
@@ -44,6 +44,9 @@ export default class Main {
   init() {
     this.camera = new THREE.PerspectiveCamera(27, window.innerWidth / window.innerHeight, 1, 3500);
     this.camera.position.z = 2750;
+    let controls = new THREE.OrbitControls(this.camera);
+    controls.update();
+
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x050505);
     this.scene.fog = new THREE.Fog(0x050505, 2000, 3500);
@@ -56,6 +59,7 @@ export default class Main {
     light2.position.set(0, -1, 0);
     this.scene.add(light2);
     this.gameObjects = new GameObjects(this.scene)
+    this.uiObjects = new UiObjects(this.scene)
     //
     this.raycaster = new THREE.Raycaster();
     //

@@ -1,5 +1,3 @@
-import * as THREE from "three.js"
-
 export default class GameObjects {
   constructor(scene) {
     this.createObjects(scene)
@@ -97,8 +95,6 @@ export default class GameObjects {
 
   onUpdate(time, raycaster) 
   {
-    this.mesh.rotation.x = time * 0.15;
-    this.mesh.rotation.y = time * 0.25;
     if (raycaster) {
       var intersects = raycaster.intersectObject(this.mesh);
       if (intersects.length > 0) {
