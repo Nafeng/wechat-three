@@ -42,14 +42,12 @@ export default class Main {
   }
 
   init() {
-    this.camera = new THREE.PerspectiveCamera(27, window.innerWidth / window.innerHeight, 1, 3500);
+    this.camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 500, 3000);
     this.camera.position.z = 2750;
-    let controls = new THREE.OrbitControls(this.camera);
-    controls.update();
-
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x050505);
     this.scene.fog = new THREE.Fog(0x050505, 2000, 3500);
+    this.scene.add(this.camera)
     //
     this.scene.add(new THREE.AmbientLight(0x444444));
     var light1 = new THREE.DirectionalLight(0xffffff, 0.5);
@@ -59,13 +57,15 @@ export default class Main {
     light2.position.set(0, -1, 0);
     this.scene.add(light2);
     this.gameObjects = new GameObjects(this.scene)
-    this.uiObjects = new UiObjects(this.scene)
+    this.uiObjects = new UiObjects(this.camera)
     //
     this.raycaster = new THREE.Raycaster();
     //
-    this.renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: false });
+    this.renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    let controls = new THREE.OrbitControls(this.camera);
+    //controls.update();
   }
 
   animate() {
@@ -74,10 +74,11 @@ export default class Main {
   }
 
   render() {
-    let { touch, camera, raycaster, scene, gameObjects, renderer} = this
+    let { touch, camera, raycaster, scene, gameObjects, uiObjects, renderer} = this
     var time = Date.now() * 0.001;
     touch && raycaster.setFromCamera(touch, this.camera);
     gameObjects.onUpdate(time, touch ? raycaster : undefined)
+    uiObjects && uiObjects.onUpdate(time, touch ? raycaster : undefined, this.camera)
     renderer.render(scene, camera);
   }
 
