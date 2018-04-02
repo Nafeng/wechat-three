@@ -7,8 +7,11 @@ export default class Main {
   camera;
   scene;
   renderer;
-  raycaster;
+  rayCaster;
   touch;
+
+  uiCamera;
+  uiScene;
 
   constructor() {
     wx.onTouchStart(event => this.onTouchStart(event))
@@ -16,6 +19,7 @@ export default class Main {
     wx.onTouchEnd(event => this.onTouchEnd(event))
     wx.onTouchCancel(event => this.onTouchCancel(event))
     this.init();
+    this.initUiScene();
     this.animate();
   }
 
@@ -57,15 +61,23 @@ export default class Main {
     light2.position.set(0, -1, 0);
     this.scene.add(light2);
     this.gameObjects = new GameObjects(this.scene)
-    this.uiObjects = new UiObjects(this.camera)
     //
-    this.raycaster = new THREE.Raycaster();
+    this.rayCaster = new THREE.Raycaster();
     //
     this.renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.autoClear = false;
     let controls = new THREE.OrbitControls(this.camera);
-    //controls.update();
+  }
+
+  initUiScene() {
+    var width = window.innerWidth;
+    let height = window.innerHeight;
+    this.uiCamera = new THREE.OrthographicCamera( - width / 2, width / 2, height / 2, - height / 2, 1, 10 );
+    this.uiCamera.position.z = 1;
+    this.uiScene = new THREE.Scene();
+    this.uiObjects = new UiObjects(this.uiScene);
   }
 
   animate() {
@@ -74,12 +86,14 @@ export default class Main {
   }
 
   render() {
-    let { touch, camera, raycaster, scene, gameObjects, uiObjects, renderer} = this
+    let { touch, camera, rayCaster, scene, gameObjects, uiObjects, renderer, uiScene, uiCamera} = this
     var time = Date.now() * 0.001;
-    touch && raycaster.setFromCamera(touch, this.camera);
-    gameObjects.onUpdate(time, touch ? raycaster : undefined)
-    uiObjects && uiObjects.onUpdate(time, touch ? raycaster : undefined, this.camera)
+    touch && rayCaster.setFromCamera(touch, this.camera);
+    gameObjects.onUpdate(time, touch ? rayCaster : undefined)
+    uiObjects && uiObjects.onUpdate(time, touch ? rayCaster : undefined, this.camera)
+    renderer.clear();
     renderer.render(scene, camera);
+    renderer.render(uiScene, uiCamera);
   }
 
 }
