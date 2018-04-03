@@ -75,7 +75,7 @@ export default class Main {
     var width = window.innerWidth;
     let height = window.innerHeight;
     this.uiCamera = new THREE.OrthographicCamera( - width / 2, width / 2, height / 2, - height / 2, 1, 10 );
-    this.uiCamera.position.z = 1;
+    this.uiCamera.position.z = 9;
     this.uiScene = new THREE.Scene();
     this.uiObjects = new UiObjects(this.uiScene);
   }

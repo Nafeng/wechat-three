@@ -4,3 +4,4 @@ document.createElementNS = function (ns, tagName) {
 }
 GameGlobal.THREE = require('./three.js')
 GameGlobal.OrbitControls = require( "./controls/OrbitControls.js")
+GameGlobal.ImageBitmap = Object
