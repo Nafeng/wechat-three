@@ -17,19 +17,19 @@ export default class UIText {
     context.fillStyle = props.color;
     context.textBaseline = 'top';
     context.fillText(props.text, 0, 0);
-    let canvasTexture = new THREE.Texture(canvas);
-    canvasTexture.needsUpdate = true;
-    canvasTexture.minFilter = THREE.LinearFilter;
-    var spriteMaterial = new THREE.SpriteMaterial({ map: canvasTexture });
-    this.sprite = new THREE.Sprite(spriteMaterial);
-    this.sprite.scale.set(canvas.width / devicePixelRatio, canvas.height / devicePixelRatio, 1);
-    this.sprite.center.set( .5, .5)
-    this.sprite.position.set(0, 0, 0)
+    let texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+    texture.minFilter = THREE.LinearFilter;
+    let geometry = new THREE.PlaneGeometry(1, 1, 1);
+    let material = new THREE.MeshBasicMaterial( {map: texture, transparent: true} );
+    this.plane = new THREE.Mesh( geometry, material );
+    this.plane.scale.set(canvas.width / devicePixelRatio, canvas.height / devicePixelRatio, 1);
+    this.plane.position.set(0, 0, 0.1)
     this.canvas = canvas;
   }
 
   getGeometry() {
-    return this.sprite
+    return this.plane
   }
 
   getWidth() {

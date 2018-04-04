@@ -14,35 +14,24 @@ export default class Main {
   uiScene;
 
   constructor() {
-    wx.onTouchStart(event => this.onTouchStart(event))
-    wx.onTouchMove(event => this.onTouchMove(event))
-    wx.onTouchEnd(event => this.onTouchEnd(event))
-    wx.onTouchCancel(event => this.onTouchCancel(event))
+    wx.onTouchStart(event => this.onTouch(event, Main.TOUCH_TYPE_START))
+    wx.onTouchMove(event => this.onTouch(event, Main.TOUCH_TYPE_MOVE))
+    wx.onTouchEnd(event => this.onTouch(event, Main.TOUCH_TYPE_END))
+    wx.onTouchCancel(event => this.onTouch(event, Main.TOUCH_TYPE_CANCEL))
     this.init();
     this.initUiScene();
     this.animate();
   }
 
-  onTouchStart(event) {
+  onTouch(event, type) {
+    
     this.touch = new THREE.Vector2();
+    this.touch.type = type;
     let touch = event.touches[0]
-    this.touch.x = (touch.clientX / window.innerWidth) * 2 - 1;
-    this.touch.y = - (touch.clientY / window.innerHeight) * 2 + 1;
-  }
-
-  onTouchMove(event) {
-    this.touch = new THREE.Vector2();
-    let touch = event.touches[0]
-    this.touch.x = (touch.clientX / window.innerWidth) * 2 - 1;
-    this.touch.y = - (touch.clientY / window.innerHeight) * 2 + 1;
-  }
-
-  onTouchEnd(event) {
-    this.touch = undefined
-  }
-
-  onTouchCancel(event) {
-    this.touch = undefined
+    if (touch) {
+      this.touch.x = (touch.clientX / window.innerWidth) * 2 - 1;
+      this.touch.y = - (touch.clientY / window.innerHeight) * 2 + 1;
+    }
   }
 
   init() {
@@ -78,6 +67,7 @@ export default class Main {
     this.uiCamera.position.z = 9;
     this.uiScene = new THREE.Scene();
     this.uiObjects = new UiObjects(this.uiScene);
+    console.log(systemInfo, isDevTool())
   }
 
   animate() {
@@ -88,12 +78,30 @@ export default class Main {
   render() {
     let { touch, camera, rayCaster, scene, gameObjects, uiObjects, renderer, uiScene, uiCamera} = this
     var time = Date.now() * 0.001;
-    touch && rayCaster.setFromCamera(touch, this.camera);
+    if (touch) {
+      let intersects;
+      if (touch.type !== Main.TOUCH_TYPE_MOVE) {
+        rayCaster.setFromCamera(touch, uiCamera);
+        intersects = rayCaster.intersectObjects(uiScene.children, true);
+        intersects.length && console.log(intersects)
+      }
+      if (intersects && !intersects.length) {
+        rayCaster.setFromCamera(touch, camera);
+      } else {
+        touch = undefined
+      }
+      if (touch && (touch.type === Main.TOUCH_TYPE_END || touch.type === Main.TOUCH_TYPE_CANCEL))
+        this.touch = undefined
+    }
     gameObjects.onUpdate(time, touch ? rayCaster : undefined)
-    uiObjects && uiObjects.onUpdate(time, touch ? rayCaster : undefined, this.camera)
+    // uiObjects && uiObjects.onUpdate(time, touch ? rayCaster : undefined, this.camera)
     renderer.clear();
     renderer.render(scene, camera);
     renderer.render(uiScene, uiCamera);
   }
 
 }
+Main.TOUCH_TYPE_START = 'START';
+Main.TOUCH_TYPE_MOVE = 'MOVE';
+Main.TOUCH_TYPE_END = 'END';
+Main.TOUCH_TYPE_CANCEL = 'CANCEL';

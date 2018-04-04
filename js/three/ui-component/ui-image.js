@@ -1,17 +1,18 @@
 export default class UiImage {
   constructor(props) {
     let loader = new THREE.TextureLoader();
-    let texture = loader.load(props.image, loadedTexture => {
-      sprite.scale.set(loadedTexture.image.width / 1.5, loadedTexture.image.height / 1.5, 1)
-      sprite.position.set(10, 10, 0);
+    let texture = loader.load(props.image, texture => {
+      this.plane.scale.set(texture.image.width / devicePixelRatio, texture.image.height / devicePixelRatio, 1);
     });
     texture.minFilter = THREE.LinearFilter;
-    let sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
-    sprite.center.set(.5, .5)
-    this.sprite = sprite;
+    let geometry = new THREE.PlaneGeometry(1, 1, 1);
+    let material = new THREE.MeshBasicMaterial( {map: texture, transparent: true} );
+    let plane = new THREE.Mesh( geometry, material );
+    plane.name = props.image
+    this.plane = plane;
   }
 
   getGeometry() {
-    return this.sprite;
+    return this.plane;
   }
 }
