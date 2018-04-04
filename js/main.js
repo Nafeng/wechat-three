@@ -24,7 +24,11 @@ export default class Main {
   }
 
   onTouch(event, type) {
-    
+    this.touchEvent = event;
+    if (isDevTool() && type === Main.TOUCH_TYPE_END) {
+      this.touch.type = type
+      return;
+    }
     this.touch = new THREE.Vector2();
     this.touch.type = type;
     let touch = event.touches[0]
@@ -57,7 +61,7 @@ export default class Main {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.autoClear = false;
-    let controls = new THREE.OrbitControls(this.camera);
+    this.controls = new THREE.OrbitControls(this.camera);
   }
 
   initUiScene() {
@@ -67,7 +71,6 @@ export default class Main {
     this.uiCamera.position.z = 9;
     this.uiScene = new THREE.Scene();
     this.uiObjects = new UiObjects(this.uiScene);
-    console.log(systemInfo, isDevTool())
   }
 
   animate() {
@@ -80,18 +83,29 @@ export default class Main {
     var time = Date.now() * 0.001;
     if (touch) {
       let intersects;
-      if (touch.type !== Main.TOUCH_TYPE_MOVE) {
-        rayCaster.setFromCamera(touch, uiCamera);
-        intersects = rayCaster.intersectObjects(uiScene.children, true);
-        intersects.length && console.log(intersects)
-      }
-      if (intersects && !intersects.length) {
+      rayCaster.setFromCamera(touch, uiCamera);
+      intersects = rayCaster.intersectObjects(uiScene.children, true);
+        // intersects.length && console.log(intersects)
+      if (intersects && intersects.length === 0) {
         rayCaster.setFromCamera(touch, camera);
+        switch (touch.type) {
+          case Main.TOUCH_TYPE_START:
+            this.controls.onTouchStart(this.touchEvent)
+            break;
+          case Main.TOUCH_TYPE_MOVE:
+            this.controls.onTouchMove(this.touchEvent)
+            break;
+          case Main.TOUCH_TYPE_END:
+            this.controls.onTouchEnd(this.touchEvent)
+            break;
+        }
       } else {
         touch = undefined
       }
-      if (touch && (touch.type === Main.TOUCH_TYPE_END || touch.type === Main.TOUCH_TYPE_CANCEL))
+      if (this.touch.type === Main.TOUCH_TYPE_END || this.touch.type === Main.TOUCH_TYPE_CANCEL) {
         this.touch = undefined
+        this.touchEvent = undefined
+      }
     }
     gameObjects.onUpdate(time, touch ? rayCaster : undefined)
     // uiObjects && uiObjects.onUpdate(time, touch ? rayCaster : undefined, this.camera)

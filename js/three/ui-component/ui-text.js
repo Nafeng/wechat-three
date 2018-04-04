@@ -23,6 +23,7 @@ export default class UIText {
     let geometry = new THREE.PlaneGeometry(1, 1, 1);
     let material = new THREE.MeshBasicMaterial( {map: texture, transparent: true} );
     this.plane = new THREE.Mesh( geometry, material );
+    this.plane.name = props.text;
     this.plane.scale.set(canvas.width / devicePixelRatio, canvas.height / devicePixelRatio, 1);
     this.plane.position.set(0, 0, 0.1)
     this.canvas = canvas;
